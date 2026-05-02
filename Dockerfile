@@ -1,12 +1,17 @@
+FROM node:16-bullseye-slim AS node
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates gnupg \
-    && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm-cli.js \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx-cli.js \
+    && node --version \
+    && npm --version
 
 COPY ["src/WebUI/WebUI.csproj", "src/WebUI/"]
 COPY ["src/Application/Application.csproj", "src/Application/"]
