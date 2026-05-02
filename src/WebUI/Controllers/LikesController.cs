@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using TwitterClone.Application.Posts.Commands.CreateLike;
-using TwitterClone.Application.Posts.Commands.RemoveLike;
+using TwitterClone.Application.Likes.Commands.CreateLike;
+using TwitterClone.Application.Likes.Commands.RemoveLike;
 
 namespace TwitterClone.WebUI.Controllers
 {

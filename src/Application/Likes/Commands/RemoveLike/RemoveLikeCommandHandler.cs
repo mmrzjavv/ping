@@ -6,7 +6,7 @@ using TwitterClone.Application.Common.Exceptions;
 using TwitterClone.Application.Common.Interfaces;
 using TwitterClone.Domain.Entities;
 
-namespace TwitterClone.Application.Posts.Commands.RemoveLike
+namespace TwitterClone.Application.Likes.Commands.RemoveLike
 {
     public class RemoveLikeCommandHandler : IRequestHandler<RemoveLikeCommand>
     {

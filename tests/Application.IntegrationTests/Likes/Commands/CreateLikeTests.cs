@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
 using TwitterClone.Application.Common.Exceptions;
-using TwitterClone.Application.Posts.Commands.CreateLike;
+using TwitterClone.Application.Likes.Commands.CreateLike;
 using TwitterClone.Domain.Entities;
 using static TwitterClone.Application.IntegrationTests.Testing;
 

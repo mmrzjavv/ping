@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace TwitterClone.Application.Posts.Commands.CreateLike
+namespace TwitterClone.Application.Likes.Commands.CreateLike
 {
     public class CreateLikeCommand : IRequest
     {

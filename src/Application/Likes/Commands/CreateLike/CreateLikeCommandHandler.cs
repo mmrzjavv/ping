@@ -7,7 +7,7 @@ using TwitterClone.Application.Common.Interfaces;
 using TwitterClone.Domain.Entities;
 using TwitterClone.Domain.Events;
 
-namespace TwitterClone.Application.Posts.Commands.CreateLike
+namespace TwitterClone.Application.Likes.Commands.CreateLike
 {
     public class CreateLikeCommandHandler : IRequestHandler<CreateLikeCommand>
     {

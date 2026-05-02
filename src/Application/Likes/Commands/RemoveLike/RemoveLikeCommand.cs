@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace TwitterClone.Application.Posts.Commands.RemoveLike
+namespace TwitterClone.Application.Likes.Commands.RemoveLike
 {
     public class RemoveLikeCommand : IRequest
     {
