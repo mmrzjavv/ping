@@ -1,30 +1,27 @@
-# Stage 1: Build React app
-FROM node:18 AS node-build
+# ---------------- Stage 1: Build (.NET 5 + Node) ----------------
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
-# Copy only package files first for better cache
-COPY src/WebUI/ClientApp/package*.json ./src/WebUI/ClientApp/
-RUN cd src/WebUI/ClientApp && npm install
+# نصب Node.js در محیط دات‌نت 5
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
-# Copy the rest of the source
+# کپی کل پروژه
 COPY . .
 
-# Build React app
-RUN cd src/WebUI/ClientApp && npm run build
-
-# Stage 2: Build .NET backend
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-
-COPY . .
+# رستور پکیج‌ها
 RUN dotnet restore src/WebUI/WebUI.csproj
+
+# پابلیش پروژه (این مرحله npm install و npm run build را اجرا می‌کند)
 RUN dotnet publish src/WebUI/WebUI.csproj -c Release -o /app/publish
 
-# Stage 3: Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# ---------------- Stage 2: Runtime (.NET 5) ----------------
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
 WORKDIR /app
 
 COPY --from=build /app/publish .
-COPY --from=node-build /src/src/WebUI/ClientApp/build ./wwwroot
 
-ENTRYPOINT ["dotnet", "WebUI.dll"]
+ENTRYPOINT ["dotnet", "TwitterClone.WebUI.dll"]
