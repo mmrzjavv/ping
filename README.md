@@ -1,74 +1,144 @@
-# Twitter-clone
+# 🚀 Ping — Social Microblogging Platform
 
-[![CI](https://github.com/wdesgardin/twitter-clone/actions/workflows/ci.yml/badge.svg)](https://github.com/wdesgardin/twitter-clone/actions/workflows/ci.yml)
+![CI](https://github.com/wdesgardin/twitter-clone/actions/workflows/ci.yml/badge.svg)
 
-Twitter clone based on Jason Taylor's [clean architecture template](https://github.com/jasontaylordev/CleanArchitecture).  
+Ping is a modern microblogging platform inspired by Twitter (X), built with ASP.NET Core and React, following Clean Architecture principles.
+
+This project demonstrates scalable backend design, real-time communication, and modern frontend development practices.
 
 ![screenshots](./screenshots.gif)
 
-## Technologies
+---
 
-- [ASP.NET Core 5](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0)
-- [Entity Framework Core 5](https://docs.microsoft.com/en-us/ef/core/)
-- [SignalR](https://docs.microsoft.com/en-us/aspnet/signalr/overview/getting-started/introduction-to-signalr)
-- [React](https://reactjs.org/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [MediatR](https://github.com/jbogard/MediatR)
-- [AutoMapper](https://automapper.org/)
-- [FluentValidation](https://fluentvalidation.net/)
-- [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq) & [Respawn](https://github.com/jbogard/Respawn)
-- [Docker](https://www.docker.com/)
+## 👨‍💻 Author
 
-## Getting Started
+Mohammadreza Javaheri  
+Email: mohammad.r.javaheri@gmail.com  
 
-1. Install the latest [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
-2. Install the latest [Node.js LTS](https://nodejs.org/en/)
-3. Navigate to `src/WebUI` and run `dotnet run` to launch the back end (ASP.NET Core Web API), and the front end (React SPA)
+---
 
-## Database Configuration
+## ✨ Features
 
-The template is configured to use an in-memory database by default. This ensures that all users will be able to run the solution without needing to set up additional infrastructure.
+- User authentication & profile management
+- Create and publish posts (Pings)
+- Real-time updates using SignalR
+- Responsive UI with TailwindCSS
+- Clean Architecture implementation
+- CQRS pattern with MediatR
+- Unit & Integration testing
+- Docker support
 
-If you would like to use PostegreSQL, you will need to update **WebUI/appsettings.json** as follows:
+---
 
-```json
-  "UseInMemoryDatabase": false,
-```
+## 🛠 Tech Stack
 
-Verify that the **DefaultConnection** connection string within **appsettings.json** points to a valid PostegreSQL instance.
+Backend:
+- ASP.NET Core 5
+- Entity Framework Core 5
+- MediatR (CQRS)
+- AutoMapper
+- FluentValidation
+- SignalR
 
-When you run the application the database will be automatically created (if necessary) and the latest migrations will be applied.
+Frontend:
+- React
+- TailwindCSS
 
-### Database Migrations
+Testing:
+- NUnit
+- FluentAssertions
+- Moq
+- Respawn
 
-To use `dotnet-ef` for your migrations please add the following flags to your command (values assume you are executing from repository root)
+DevOps:
+- Docker
+- GitHub Actions CI
 
-- `--project src/Infrastructure` (optional if in this folder)
-- `--startup-project src/WebUI`
-- `--output-dir Persistence/Migrations`
+---
 
-For example, to add a new migration from the root folder:
+## 🏗 Architecture
 
-`dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\WebUI --output-dir Persistence\Migrations`
+The project follows Clean Architecture structure:
 
-## Overview
+src
+ ├── Domain
+ ├── Application
+ ├── Infrastructure
+ └── WebUI
 
-### Domain
+Domain:
+Contains business entities, enums, exceptions, interfaces, and core rules.
 
-This will contain all entities, enums, exceptions, interfaces, types and logic specific to the domain layer.
+Application:
+Contains use cases and application logic. Depends only on the Domain layer.
 
-### Application
+Infrastructure:
+Implements external services such as database, file storage, email services, and third-party integrations.
 
-This layer contains all application logic. It is dependent on the domain layer, but has no dependencies on any other layer or project. This layer defines interfaces that are implemented by outside layers. For example, if the application need to access a notification service, a new interface would be added to application and an implementation would be created within infrastructure.
+WebUI:
+Presentation layer built with ASP.NET Core Web API and React SPA.
+Only Startup.cs references Infrastructure for dependency injection.
 
-### Infrastructure
+---
 
-This layer contains classes for accessing external resources such as file systems, web services, smtp, and so on. These classes should be based on interfaces defined within the application layer.
+## 🚀 Getting Started
 
-### WebUI
+Prerequisites:
+- .NET 5 SDK
+- Node.js LTS
 
-This layer is a single page application based on React and ASP.NET Core 5. This layer depends on both the Application and Infrastructure layers, however, the dependency on Infrastructure is only to support dependency injection. Therefore only _Startup.cs_ should reference Infrastructure.
+Run the Application:
 
-## License
+Navigate to:
+src/WebUI
 
-This project is licensed with the [MIT license](LICENSE).
+Run:
+dotnet run
+
+This starts:
+- ASP.NET Core API
+- React Frontend
+
+---
+
+## 🗄 Database Configuration
+
+By default, Ping uses an In-Memory Database.
+
+To use PostgreSQL:
+
+Open:
+WebUI/appsettings.json
+
+Update:
+"UseInMemoryDatabase": false
+
+Configure:
+"DefaultConnection": "Host=localhost;Database=pingdb;Username=postgres;Password=yourpassword"
+
+The database and migrations will be applied automatically on startup.
+
+---
+
+## 🧩 Database Migrations
+
+From repository root:
+
+dotnet ef migrations add MigrationName --project src/Infrastructure --startup-project src/WebUI --output-dir Persistence/Migrations
+
+Example:
+
+dotnet ef migrations add InitialCreate --project src/Infrastructure --startup-project src/WebUI --output-dir Persistence/Migrations
+
+---
+
+## 🐳 Running with Docker
+
+docker-compose up --build
+
+---
+
+## 📜 License
+
+Licensed under the MIT License.
+
