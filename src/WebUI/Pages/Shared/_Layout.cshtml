@@ -1,0 +1,51 @@
+@using Microsoft.AspNetCore.Identity
+@using TwitterClone.Infrastructure.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    string returnUrl = null;
+    var query = ViewContext.HttpContext.Request.Query;
+    if (query.ContainsKey("returnUrl"))
+    {
+        returnUrl = query["returnUrl"];
+    }
+}
+
+<ul class="navbar-nav ms-auto align-items-center gap-3">
+    <li class="nav-item d-flex align-items-center">
+        <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
+            <img src="/logo.png" alt="Logo" style="width:32px; height:32px; object-fit:contain; margin-right:8px;" />
+            <span class="fw-bold text-primary">WebUI</span>
+        </a>
+    </li>
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link fw-semibold text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                Hello @User.Identity.Name!
+            </a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                <button type="submit" class="btn btn-link nav-link p-0 text-danger fw-semibold">
+                    Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link fw-semibold text-primary" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@returnUrl">
+                Register
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold btn btn-primary text-white px-3 py-1 ms-2" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl">
+                Login
+            </a>
+        </li>
+    }
+</ul>

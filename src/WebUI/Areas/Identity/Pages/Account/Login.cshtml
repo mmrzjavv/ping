@@ -1,0 +1,53 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "/Pages/Shared/_CustomLayout.cshtml";
+}
+
+<div class="flex w-full justify-center items-center py-10">
+    <form method="post" class="w-full max-w-md bg-white shadow-lg rounded-xl p-8 text-lg">
+
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <img src="/logo.png" alt="Logo" class="w-20 h-20 object-contain" />
+        </div>
+
+        <h1 class="text-center font-bold text-2xl mb-6">Log in to your account</h1>
+
+        <input asp-for="Input.Email"
+               placeholder="Email"
+               class="w-full border border-gray-300 rounded-lg p-3 my-2 focus:ring-2 focus:ring-primary focus:outline-none" />
+
+        <input asp-for="Input.Password"
+               placeholder="Password"
+               class="w-full border border-gray-300 rounded-lg p-3 my-2 focus:ring-2 focus:ring-primary focus:outline-none" />
+
+        <div class="flex items-center justify-between my-3 text-sm text-gray-600">
+            <label class="flex items-center gap-2">
+                <input asp-for="Input.RememberMe" class="rounded" />
+                @Html.DisplayNameFor(m => m.Input.RememberMe)
+            </label>
+            <a asp-page="./ForgotPassword" class="text-primary hover:underline">Forgot password?</a>
+        </div>
+
+        <div asp-validation-summary="All" class="text-red-600 text-sm mt-2"></div>
+
+        <button type="submit"
+                class="w-full bg-primary text-white rounded-full py-3 font-semibold text-lg mt-4 shadow-md hover:opacity-90 transition">
+            Log in
+        </button>
+
+        <p class="mt-5 text-center">
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl"
+               class="text-primary font-medium hover:underline">
+                New here? Create an account
+            </a>
+        </p>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,50 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "/Pages/Shared/_CustomLayout.cshtml";
+}
+
+<div class="flex w-full justify-center items-center py-10">
+    <form asp-route-returnUrl="@Model.ReturnUrl" method="post"
+          class="w-full max-w-md bg-white shadow-lg rounded-xl p-8 text-lg">
+
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <img src="/logo.png" alt="Logo" class="w-20 h-20 object-contain" />
+
+        </div>
+
+        <h1 class="text-center font-bold text-2xl mb-6">Create a New Account</h1>
+
+        <input asp-for="Input.Email"
+               placeholder="Email"
+               class="w-full border border-gray-300 rounded-lg p-3 my-2 focus:ring-2 focus:ring-primary focus:outline-none" />
+
+        <input asp-for="Input.Password"
+               placeholder="Password"
+               class="w-full border border-gray-300 rounded-lg p-3 my-2 focus:ring-2 focus:ring-primary focus:outline-none" />
+
+        <input asp-for="Input.ConfirmPassword"
+               placeholder="Confirm Password"
+               class="w-full border border-gray-300 rounded-lg p-3 my-2 focus:ring-2 focus:ring-primary focus:outline-none" />
+
+        <div asp-validation-summary="All" class="text-red-700 text-sm mt-2"></div>
+
+        <button type="submit"
+                class="w-full bg-primary text-white rounded-full py-3 font-semibold text-lg mt-4 shadow-md hover:opacity-90 transition">
+            Register
+        </button>
+
+        <p class="mt-5 text-center">
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl"
+               class="text-primary font-medium hover:underline">
+                Already have an account? Log in
+            </a>
+        </p>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
