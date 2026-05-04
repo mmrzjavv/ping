@@ -103,7 +103,7 @@ export const ChatApi = {
 	uploadAttachment: async (file: File, attachmentType: "Image" | "Audio"): Promise<UploadAttachmentResponse> => {
 		const token = await authService.getAccessToken();
 		const form = new FormData();
-		form.append("fileData", file);
+		form.append("FileData", file);
 		const response = await fetch(`/api/attachment/upload?attachmentType=${attachmentType}`, {
 			method: "POST",
 			body: form,
