@@ -47,6 +47,7 @@ namespace TwitterClone.WebUI
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddTransient<IChatNotifierService, ChatNotifierService>();
             services.AddTransient<IUserNotifierService, UserNotifierService>();
 
             services.AddHttpContextAccessor();
@@ -133,6 +134,7 @@ namespace TwitterClone.WebUI
                     pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
                 endpoints.MapHub<NotificationsHub>("/hubs/notifications");
+                endpoints.MapHub<ChatHub>("/hubs/chat");
             });
 
             app.UseSpa(spa =>

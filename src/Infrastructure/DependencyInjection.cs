@@ -1,4 +1,5 @@
-﻿using TwitterClone.Application.Common.Interfaces;
+﻿using TwitterClone.Application.Common.Attachment;
+using TwitterClone.Application.Common.Interfaces;
 using TwitterClone.Infrastructure.Identity;
 using TwitterClone.Infrastructure.Persistence;
 using TwitterClone.Infrastructure.Services;
@@ -42,6 +43,7 @@ namespace TwitterClone.Infrastructure
 
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddTransient<IIdentityService, IdentityService>();
+            services.AddSingleton<IAttachment, AttachmentManager>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();

@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 
 interface FileInputProps {
 	onFileChange: (file: File) => void;
+	accept?: string;
 }
 
 const FileInput: React.FC<FileInputProps> = (props) => {
@@ -17,7 +18,7 @@ const FileInput: React.FC<FileInputProps> = (props) => {
 			<input
 				type="file"
 				className="hidden"
-				accept=".png,.jpg,.jpeg,image/jpeg,image/png"
+				accept={props.accept || ".png,.jpg,.jpeg,image/jpeg,image/png"}
 				ref={fileInputRef}
 				onChange={onFileChange}
 			/>

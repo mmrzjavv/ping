@@ -22,17 +22,31 @@ namespace TwitterClone.Application.Conversations.Commands.CreateConversation
 
         public async Task<int> Handle(CreateConversationCommand request, CancellationToken cancellationToken)
         {
+            var distinctMembers = request.Members.Distinct().ToList();
             var members = await _context.DomainUsers
-                .Where(u => request.Members.Any(id => id == u.Id) || u.ApplicationUserId == _currentUser.UserId)
+                .Where(u => distinctMembers.Any(id => id == u.Id) || u.ApplicationUserId == _currentUser.UserId)
                 .ToListAsync(cancellationToken);
             
-            var notFounds = request.Members.Where(id => !members.Any(found => found.Id == id)).ToList();
+            var notFounds = distinctMembers.Where(id => !members.Any(found => found.Id == id)).ToList();
             if(notFounds.Any())
                 throw new NotFoundException(nameof(User), string.Join(", ", notFounds));
 
+            var memberIds = members.Select(m => m.Id).OrderBy(id => id).ToList();
+
+            var existingConversation = await _context.Conversations
+                .Include(c => c.Members)
+                .FirstOrDefaultAsync(c =>
+                    c.IsPrivate &&
+                    c.Members.Count == memberIds.Count &&
+                    c.Members.All(member => memberIds.Contains(member.Id)), cancellationToken);
+
+            if (existingConversation != null)
+                return existingConversation.Id;
+
             var conversation = new Conversation
             {
-                Members = members
+                Members = members,
+                IsPrivate = true
             };
 
             _context.Conversations.Add(conversation);

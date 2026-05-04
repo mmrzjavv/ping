@@ -33,8 +33,14 @@ const ApplicationRoutes: React.FC = () => {
 			.withAutomaticReconnect()
 			.withUrl("/hubs/notifications", { accessTokenFactory: () => authService.getAccessToken() })
 			.build();
-		await connection.start();
-		connection.on("Notification", (notif) => dispatch(addNotification(notif)));
+		try {
+			await connection.start();
+			connection.on("Notification", (notif) => dispatch(addNotification(notif)));
+			setHubConnection(connection);
+		} catch (error) {
+			console.error("Failed to start notifications hub connection.", error);
+			await connection.stop().catch(() => undefined);
+		}
 	};
 
 	const onLoggedOut = async () => {

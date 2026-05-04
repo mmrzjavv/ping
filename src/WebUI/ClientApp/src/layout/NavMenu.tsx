@@ -66,11 +66,11 @@ export const NavMenu: React.FC = () => {
                                     Notifications
                                 </NavLink>
                             </li>
-                            {/*<li className="my-1">*/}
-                            {/*    <NavLink to="/messages" icon={faEnvelope}>*/}
-                            {/*        Messages*/}
-                            {/*    </NavLink>*/}
-                            {/*</li>*/}
+                            <li className="my-1">
+                                <NavLink to="/messages" icon={faEnvelope}>
+                                    Chat
+                                </NavLink>
+                            </li>
                            
                             {!!state.domainUser?.username && (
                                 <li className="my-1">

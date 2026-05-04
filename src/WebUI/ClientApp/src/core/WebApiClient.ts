@@ -20,6 +20,404 @@ export class ClientBase {
     };
 }
 
+export interface IAttachmentClient {
+    upload(attachmentType?: AttachmentType | undefined, fileData?: FileParameter | null | undefined): Promise<FileResponse>;
+    delete(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse>;
+    generatePresignedUrl(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse>;
+    getPermanentUrl(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse>;
+    listFiles(attachmentType?: AttachmentType | null | undefined): Promise<FileResponse>;
+}
+
+export class AttachmentClient extends ClientBase implements IAttachmentClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        super();
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    upload(attachmentType?: AttachmentType | undefined, fileData?: FileParameter | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Attachment/api/attachment/upload?";
+        if (attachmentType === null)
+            throw new Error("The parameter 'attachmentType' cannot be null.");
+        else if (attachmentType !== undefined)
+            url_ += "attachmentType=" + encodeURIComponent("" + attachmentType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (fileData !== null && fileData !== undefined)
+            content_.append("FileData", fileData.data, fileData.fileName ? fileData.fileName : "FileData");
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processUpload(_response);
+        });
+    }
+
+    protected processUpload(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+
+    delete(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Attachment/api/attachment/delete?";
+        if (filename !== undefined && filename !== null)
+            url_ += "filename=" + encodeURIComponent("" + filename) + "&";
+        if (attachmentType === null)
+            throw new Error("The parameter 'attachmentType' cannot be null.");
+        else if (attachmentType !== undefined)
+            url_ += "attachmentType=" + encodeURIComponent("" + attachmentType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "DELETE",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processDelete(_response);
+        });
+    }
+
+    protected processDelete(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+
+    generatePresignedUrl(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Attachment/api/attachment/presigned-url?";
+        if (filename !== undefined && filename !== null)
+            url_ += "filename=" + encodeURIComponent("" + filename) + "&";
+        if (attachmentType === null)
+            throw new Error("The parameter 'attachmentType' cannot be null.");
+        else if (attachmentType !== undefined)
+            url_ += "attachmentType=" + encodeURIComponent("" + attachmentType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processGeneratePresignedUrl(_response);
+        });
+    }
+
+    protected processGeneratePresignedUrl(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+
+    getPermanentUrl(filename?: string | null | undefined, attachmentType?: AttachmentType | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Attachment/api/attachment/permanent-url?";
+        if (filename !== undefined && filename !== null)
+            url_ += "filename=" + encodeURIComponent("" + filename) + "&";
+        if (attachmentType === null)
+            throw new Error("The parameter 'attachmentType' cannot be null.");
+        else if (attachmentType !== undefined)
+            url_ += "attachmentType=" + encodeURIComponent("" + attachmentType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processGetPermanentUrl(_response);
+        });
+    }
+
+    protected processGetPermanentUrl(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+
+    listFiles(attachmentType?: AttachmentType | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Attachment/api/attachment/list?";
+        if (attachmentType !== undefined && attachmentType !== null)
+            url_ += "attachmentType=" + encodeURIComponent("" + attachmentType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processListFiles(_response);
+        });
+    }
+
+    protected processListFiles(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+}
+
+export interface IChatClient {
+    getConversations(): Promise<ConversationDto[]>;
+    getMessages(conversationId: number): Promise<ChatMessageDto[]>;
+    sendMessage(command: SendMessageCommand): Promise<SendMessageResponseDto>;
+    markSeen(messageId: number): Promise<FileResponse>;
+}
+
+export class ChatClient extends ClientBase implements IChatClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        super();
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getConversations(): Promise<ConversationDto[]> {
+        let url_ = this.baseUrl + "/api/Chat";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processGetConversations(_response);
+        });
+    }
+
+    protected processGetConversations(response: Response): Promise<ConversationDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ConversationDto.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ConversationDto[]>(<any>null);
+    }
+
+    getMessages(conversationId: number): Promise<ChatMessageDto[]> {
+        let url_ = this.baseUrl + "/api/Chat/{conversationId}/messages";
+        if (conversationId === undefined || conversationId === null)
+            throw new Error("The parameter 'conversationId' must be defined.");
+        url_ = url_.replace("{conversationId}", encodeURIComponent("" + conversationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processGetMessages(_response);
+        });
+    }
+
+    protected processGetMessages(response: Response): Promise<ChatMessageDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ChatMessageDto.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ChatMessageDto[]>(<any>null);
+    }
+
+    sendMessage(command: SendMessageCommand): Promise<SendMessageResponseDto> {
+        let url_ = this.baseUrl + "/api/Chat/messages";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processSendMessage(_response);
+        });
+    }
+
+    protected processSendMessage(response: Response): Promise<SendMessageResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SendMessageResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SendMessageResponseDto>(<any>null);
+    }
+
+    markSeen(messageId: number): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Chat/messages/{messageId}/seen";
+        if (messageId === undefined || messageId === null)
+            throw new Error("The parameter 'messageId' must be defined.");
+        url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "POST",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
+            return this.processMarkSeen(_response);
+        });
+    }
+
+    protected processMarkSeen(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(<any>null);
+    }
+}
+
 export interface IConversationsClient {
     create(command: CreateConversationCommand): Promise<number>;
 }
@@ -1159,6 +1557,300 @@ export class UsersClient extends ClientBase implements IUsersClient {
         }
         return Promise.resolve<SearchUserDto[]>(<any>null);
     }
+}
+
+export enum AttachmentType {
+    Image = 1,
+    Video = 2,
+    Pdf = 3,
+    Report = 4,
+    Audio = 5,
+}
+
+export class ConversationDto implements IConversationDto {
+    id?: number;
+    title?: string | undefined;
+    isPrivate?: boolean;
+    created?: Date;
+    lastMessage?: ChatMessageDto | undefined;
+    members?: ChatUserDto[] | undefined;
+
+    constructor(data?: IConversationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.isPrivate = _data["isPrivate"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.lastMessage = _data["lastMessage"] ? ChatMessageDto.fromJS(_data["lastMessage"]) : <any>undefined;
+            if (Array.isArray(_data["members"])) {
+                this.members = [] as any;
+                for (let item of _data["members"])
+                    this.members!.push(ChatUserDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ConversationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConversationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["isPrivate"] = this.isPrivate;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["lastMessage"] = this.lastMessage ? this.lastMessage.toJSON() : <any>undefined;
+        if (Array.isArray(this.members)) {
+            data["members"] = [];
+            for (let item of this.members)
+                data["members"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IConversationDto {
+    id?: number;
+    title?: string | undefined;
+    isPrivate?: boolean;
+    created?: Date;
+    lastMessage?: ChatMessageDto | undefined;
+    members?: ChatUserDto[] | undefined;
+}
+
+export class ChatMessageDto implements IChatMessageDto {
+    id?: number;
+    conversationId?: number;
+    content?: string | undefined;
+    type?: MessageType;
+    attachmentFileName?: string | undefined;
+    attachmentUrl?: string | undefined;
+    attachmentContentType?: string | undefined;
+    isSeen?: boolean;
+    created?: Date;
+    seenAt?: Date | undefined;
+    createdBy?: ChatUserDto | undefined;
+
+    constructor(data?: IChatMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.conversationId = _data["conversationId"];
+            this.content = _data["content"];
+            this.type = _data["type"];
+            this.attachmentFileName = _data["attachmentFileName"];
+            this.attachmentUrl = _data["attachmentUrl"];
+            this.attachmentContentType = _data["attachmentContentType"];
+            this.isSeen = _data["isSeen"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.seenAt = _data["seenAt"] ? new Date(_data["seenAt"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"] ? ChatUserDto.fromJS(_data["createdBy"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ChatMessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["conversationId"] = this.conversationId;
+        data["content"] = this.content;
+        data["type"] = this.type;
+        data["attachmentFileName"] = this.attachmentFileName;
+        data["attachmentUrl"] = this.attachmentUrl;
+        data["attachmentContentType"] = this.attachmentContentType;
+        data["isSeen"] = this.isSeen;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["seenAt"] = this.seenAt ? this.seenAt.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy ? this.createdBy.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IChatMessageDto {
+    id?: number;
+    conversationId?: number;
+    content?: string | undefined;
+    type?: MessageType;
+    attachmentFileName?: string | undefined;
+    attachmentUrl?: string | undefined;
+    attachmentContentType?: string | undefined;
+    isSeen?: boolean;
+    created?: Date;
+    seenAt?: Date | undefined;
+    createdBy?: ChatUserDto | undefined;
+}
+
+export enum MessageType {
+    Text = 1,
+    Image = 2,
+    Audio = 3,
+}
+
+export class ChatUserDto implements IChatUserDto {
+    id?: number;
+    fullName?: string | undefined;
+    username?: string | undefined;
+    pictureId?: string | undefined;
+
+    constructor(data?: IChatUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.username = _data["username"];
+            this.pictureId = _data["pictureId"];
+        }
+    }
+
+    static fromJS(data: any): ChatUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["username"] = this.username;
+        data["pictureId"] = this.pictureId;
+        return data; 
+    }
+}
+
+export interface IChatUserDto {
+    id?: number;
+    fullName?: string | undefined;
+    username?: string | undefined;
+    pictureId?: string | undefined;
+}
+
+export class SendMessageResponseDto implements ISendMessageResponseDto {
+    conversationId?: number;
+    message?: ChatMessageDto | undefined;
+
+    constructor(data?: ISendMessageResponseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.message = _data["message"] ? ChatMessageDto.fromJS(_data["message"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): SendMessageResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendMessageResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["message"] = this.message ? this.message.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ISendMessageResponseDto {
+    conversationId?: number;
+    message?: ChatMessageDto | undefined;
+}
+
+export class SendMessageCommand implements ISendMessageCommand {
+    conversationId?: number;
+    content?: string | undefined;
+    attachmentFileName?: string | undefined;
+    attachmentContentType?: string | undefined;
+    type?: MessageType;
+
+    constructor(data?: ISendMessageCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.conversationId = _data["conversationId"];
+            this.content = _data["content"];
+            this.attachmentFileName = _data["attachmentFileName"];
+            this.attachmentContentType = _data["attachmentContentType"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): SendMessageCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendMessageCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["conversationId"] = this.conversationId;
+        data["content"] = this.content;
+        data["attachmentFileName"] = this.attachmentFileName;
+        data["attachmentContentType"] = this.attachmentContentType;
+        data["type"] = this.type;
+        return data; 
+    }
+}
+
+export interface ISendMessageCommand {
+    conversationId?: number;
+    content?: string | undefined;
+    attachmentFileName?: string | undefined;
+    attachmentContentType?: string | undefined;
+    type?: MessageType;
 }
 
 export class CreateConversationCommand implements ICreateConversationCommand {

@@ -68,7 +68,7 @@ const NewConversation: React.FC<NewConversationProps> = ({ onClose }) => {
             const conversationId = await new ConversationsClient().create(command);
 
             // هدایت به صفحه چت
-            history.push(`/chat/${conversationId}`);
+            history.push(`/messages/${conversationId}`);
             onClose();
         } catch (error) {
             console.error("Error creating conversation:", error);
